@@ -1,40 +1,165 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Inscription Secrète</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mes Chiffres</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0f2f5;
+    }
+
+    header {
+      background: #1abc9c;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 2rem;
+    }
+
+    nav a {
+      color: #1abc9c;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    #message {
+      color: red;
+      font-weight: bold;
+    }
+
+    #accueil {
+      display: none;
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      background-color: #1abc9c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+
+    button:hover {
+      background-color: #159c86;
+    }
+
+    input {
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+  </style>
 </head>
 <body>
-  <h1>Inscription avec code unique 🔐</h1>
-  
-  <form id="secret-code-form">
-    <label>
-      Entrez votre code d'invitation :
-      <input type="text" id="user-code" required />
-    </label>
-    <button type="submit">Valider</button>
-  </form>
+  <header>
+    <h1>Mes Chiffres</h1>
+  </header>
 
-  <p id="message"></p>
+  <main>
+    <!-- Formulaire d'invitation par code -->
+    <section id="invitation">
+      <h2>Entrez votre code secret 🔐</h2>
+      <form id="code-form">
+        <input type="text" id="user-code" placeholder="Votre code" required />
+        <button type="submit">Valider</button>
+      </form>
+      <p id="message"></p>
+    </section>
+
+    <!-- Interface principale après validation du code -->
+    <section id="accueil">
+      <nav>
+        <a href="#" onclick="afficherSection('dashboard')">Tableau de bord</a>
+        <a href="#">Statistiques</a>
+        <a href="#">Historique</a>
+        <a href="#" onclick="window.location.reload()">Déconnexion</a>
+      </nav>
+
+      <div id="dashboard">
+        <h2>Bienvenue sur votre tableau de bord</h2>
+        <button onclick="afficherFormulaire()">➕ Mes Chiffres</button>
+
+        <div id="form-chiffres" style="display:none; margin-top:1rem;">
+          <form id="formulaire-chiffres">
+            <label>Entrez vos chiffres (entre 00 et 99, séparés par des virgules) :</label><br>
+            <input type="text" id="input-chiffres" placeholder="Ex: 12,45,99" required />
+            <button type="submit">Valider</button>
+          </form>
+          <div id="resultats-chiffres" style="margin-top:1rem;"></div>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <script>
-    // Liste de codes que tu donnes manuellement (ex : 3 codes valides)
+    // Liste des codes d’invitation valides
     let codesAutorises = ["ABC123", "JONAS2024", "INVITE001"];
 
-    document.getElementById("secret-code-form").addEventListener("submit", function(e) {
+    document.getElementById("code-form").addEventListener("submit", function(e) {
       e.preventDefault();
-      const codeSaisi = document.getElementById("user-code").value.trim();
+      const code = document.getElementById("user-code").value.trim();
+      const index = codesAutorises.indexOf(code);
 
-      const index = codesAutorises.indexOf(codeSaisi);
       if (index !== -1) {
-        // Supprime le code de la liste (utilisable une seule fois)
-        codesAutorises.splice(index, 1);
-        document.getElementById("message").textContent = "✅ Code accepté ! Bienvenue.";
+        codesAutorises.splice(index, 1); // Le code ne peut être utilisé qu’une seule fois
+        document.getElementById("invitation").style.display = "none";
+        document.getElementById("accueil").style.display = "block";
       } else {
         document.getElementById("message").textContent = "❌ Code invalide ou déjà utilisé.";
       }
     });
+
+    function afficherFormulaire() {
+      document.getElementById("form-chiffres").style.display = "block";
+    }
+
+    document.getElementById("formulaire-chiffres").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const valeur = document.getElementById("input-chiffres").value;
+      const chiffres = valeur.split(",").map(x => x.trim());
+
+      const chiffresValidés = chiffres.filter(ch => {
+        const num = Number(ch);
+        return !isNaN(num) && num >= 0 && num <= 99;
+      });
+
+      if (chiffresValidés.length !== chiffres.length) {
+        document.getElementById("resultats-chiffres").innerHTML = "❌ Certains chiffres ne sont pas valides.";
+      } else {
+        document.getElementById("resultats-chiffres").innerHTML =
+          "✅ Chiffres enregistrés : " + chiffresValidés.join(", ");
+      }
+    });
+
+    function afficherSection(id) {
+      // Pour l’instant, seul dashboard est actif
+      document.getElementById("dashboard").style.display = "block";
+    }
   </script>
 </body>
 </html>
