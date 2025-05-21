@@ -1,51 +1,40 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Inscription Secrète</title>
 </head>
 <body>
-  <h1>Formulaire d'inscription sécurisé</h1>
-  <form id="signup-form">
+  <h1>Inscription avec code unique 🔐</h1>
+  
+  <form id="secret-code-form">
     <label>
-      Adresse email :
-      <input type="email" id="email" required />
+      Entrez votre code d'invitation :
+      <input type="text" id="user-code" required />
     </label>
-    <button type="submit">Recevoir un code</button>
+    <button type="submit">Valider</button>
   </form>
-
-  <div id="code-section" style="display:none;">
-    <p>Un code a été envoyé à votre email. Veuillez le saisir :</p>
-    <input type="text" id="verification-code" placeholder="Code de confirmation" />
-    <button onclick="verifyCode()">Valider</button>
-  </div>
 
   <p id="message"></p>
 
   <script>
-    let generatedCode = "";
+    // Liste de codes que tu donnes manuellement (ex : 3 codes valides)
+    let codesAutorises = ["ABC123", "JONAS2024", "INVITE001"];
 
-    document.getElementById("signup-form").addEventListener("submit", function(e) {
+    document.getElementById("secret-code-form").addEventListener("submit", function(e) {
       e.preventDefault();
-      const email = document.getElementById("email").value;
-      generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const codeSaisi = document.getElementById("user-code").value.trim();
 
-      // Simule l'envoi de l'email (vraie version avec EmailJS juste après)
-      alert("Un code a été généré : " + generatedCode + "\n(Simulation d'envoi email)");
-
-      document.getElementById("code-section").style.display = "block";
-    });
-
-    function verifyCode() {
-      const enteredCode = document.getElementById("verification-code").value;
-      if (enteredCode === generatedCode) {
-        document.getElementById("message").textContent = "✅ Inscription confirmée !";
+      const index = codesAutorises.indexOf(codeSaisi);
+      if (index !== -1) {
+        // Supprime le code de la liste (utilisable une seule fois)
+        codesAutorises.splice(index, 1);
+        document.getElementById("message").textContent = "✅ Code accepté ! Bienvenue.";
       } else {
-        document.getElementById("message").textContent = "❌ Code incorrect.";
+        document.getElementById("message").textContent = "❌ Code invalide ou déjà utilisé.";
       }
-    }
+    });
   </script>
 </body>
 </html>
-
