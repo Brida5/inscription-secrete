@@ -1,36 +1,51 @@
-<! DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-	<meta charset="UTF-8">
-	<title>Inscription privé</title>
-	<style>
-	 body {font-family: Arial;padding: 2rem;}
-	input, button {margin: 0.5rem 0; display: block; padding: 0.5rem; }
-	</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inscription Secrète</title>
 </head>
 <body>
-	<h1>Inscription sécurisée</h1>
-	<form id="signup-form">
-		<label>Email ou téléphone </label>
-		<input type="text" id="contact" requiered placeholder="ex: email@exemple.com" >
-		<button type="submit">S'inscrire</button>
-		<p id="message"></p>
+  <h1>Formulaire d'inscription sécurisé</h1>
+  <form id="signup-form">
+    <label>
+      Adresse email :
+      <input type="email" id="email" required />
+    </label>
+    <button type="submit">Recevoir un code</button>
+  </form>
 
-	</form>
+  <div id="code-section" style="display:none;">
+    <p>Un code a été envoyé à votre email. Veuillez le saisir :</p>
+    <input type="text" id="verification-code" placeholder="Code de confirmation" />
+    <button onclick="verifyCode()">Valider</button>
+  </div>
 
-	<script>
-	   const form=document.getElementById('signub-form');
-	   form.addEventListener(submit',async (e)=> {e.preventDefault();
-	   const contact= document.getElementById('contact').value;
-	   const response = await fetch('https://TON_BACKEND.vercel.app/signup',{
-		method: 'POST',
-		headers: {'content-Type': 'application/json},
-		body: JSON.stringify({contact})
-	   });
-	  const data= await response.j.son();
-	  document.getElementById('message').textcontent= data.message;
-	});
-	</script>
+  <p id="message"></p>
 
+  <script>
+    let generatedCode = "";
+
+    document.getElementById("signup-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+      // Simule l'envoi de l'email (vraie version avec EmailJS juste après)
+      alert("Un code a été généré : " + generatedCode + "\n(Simulation d'envoi email)");
+
+      document.getElementById("code-section").style.display = "block";
+    });
+
+    function verifyCode() {
+      const enteredCode = document.getElementById("verification-code").value;
+      if (enteredCode === generatedCode) {
+        document.getElementById("message").textContent = "✅ Inscription confirmée !";
+      } else {
+        document.getElementById("message").textContent = "❌ Code incorrect.";
+      }
+    }
+  </script>
 </body>
 </html>
+
