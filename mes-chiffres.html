@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mes Chiffres</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+    h1 { text-align: center; }
+    .menu button, .section button { margin: 5px; padding: 10px 20px; }
+    .section { margin-top: 20px; }
+    .hidden { display: none; }
+    input[type="number"], input[type="text"] { width: 100px; margin-right: 10px; }
+    .result { margin-top: 20px; background: white; padding: 10px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Mes Chiffres</h1>
+
+  <div class="menu">
+    <button onclick="showSection('simples')">Mes chiffres simples</button>
+    <button onclick="showSection('combines')">Mes chiffres combinés</button>
+    <button onclick="exportData()">Exporter</button>
+    <button onclick="resetData()">Réinitialiser</button>
+  </div>
+
+  <div id="simples" class="section hidden">
+    <h2>Chiffres Simples</h2>
+    <input type="number" id="simple-number" min="0" max="99" placeholder="00-99">
+    <button onclick="validateSimple()">Valider</button>
+    <div id="jetons-simple-section" class="hidden">
+      <input type="number" id="jetons-simple" placeholder="Jetons (max 40)" min="1" max="40">
+      <button onclick="addSimple()">Ajouter</button>
+    </div>
+    <ul id="list-simples"></ul>
+  </div>
+
+  <div id="combines" class="section hidden">
+    <h2>Chiffres Combinés</h2>
+    <input type="number" id="combo1" min="0" max="99" placeholder="1er chiffre">
+    <span>x</span>
+    <input type="number" id="combo2" min="0" max="99" placeholder="2e chiffre">
+    <button onclick="validateCombine()">Valider</button>
+    <div id="jetons-combine-section" class="hidden">
+      <input type="number" id="jetons-combine" placeholder="Jetons (max 40)" min="1" max="40">
+      <button onclick="addCombine()">Ajouter</button>
+    </div>
+    <ul id="list-combines"></ul>
+  </div>
+
+  <div class="result">
+    <h3>Total de jetons : <span id="total">0</span></h3>
+  </div>
+
+  <script>
+    let totalJetons = 0;
+    let currentSimple = null;
+    let currentCombine = null;
+    const simples = [];
+    const combines = [];
+
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function validateSimple() {
+      const val = parseInt(document.getElementById("simple-number").value);
+      if (isNaN(val) || val < 0 || val > 99) return alert("Chiffre invalide !");
+      currentSimple = val.toString().padStart(2, "0");
+      document.getElementById("jetons-simple-section").classList.remove("hidden");
+    }
+
+    function addSimple() {
+      const jetons = parseInt(document.getElementById("jetons-simple").value);
+      if (isNaN(jetons) || jetons < 1 || jetons > 40) return alert("Max 40 jetons !");
+      simples.push({ chiffre: currentSimple, jetons });
+      totalJetons += jetons;
+      updateTotal();
+      updateList("list-simples", simples);
+      document.getElementById("jetons-simple-section").classList.add("hidden");
+      document.getElementById("jetons-simple").value = "";
+    }
+
+    function validateCombine() {
+      const c1 = parseInt(document.getElementById("combo1").value);
+      const c2 = parseInt(document.getElementById("combo2").value);
+      if (isNaN(c1) || isNaN(c2) || c1 < 0 || c1 > 99 || c2 < 0 || c2 > 99)
+        return alert("Combinaison invalide !");
+      currentCombine = `${c1.toString().padStart(2, "0")} x ${c2.toString().padStart(2, "0")}`;
+      document.getElementById("jetons-combine-section").classList.remove("hidden");
+    }
+
+    function addCombine() {
+      const jetons = parseInt(document.getElementById("jetons-combine").value);
+      if (isNaN(jetons) || jetons < 1 || jetons > 40) return alert("Max 40 jetons !");
+      combines.push({ combine: currentCombine, jetons });
+      totalJetons += jetons;
+      updateTotal();
+      updateList("list-combines", combines, true);
+      document.getElementById("jetons-combine-section").classList.add("hidden");
+      document.getElementById("jetons-combine").value = "";
+    }
+
+    function updateList(id, data, isCombine = false) {
+      const ul = document.getElementById(id);
+      ul.innerHTML = "";
+      data.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = isCombine
+          ? `${item.combine} — ${item.jetons} jetons`
+          : `${item.chiffre} — ${item.jetons} jetons`;
+        ul.appendChild(li);
+      });
+    }
+
+    function updateTotal() {
+      document.getElementById("total").textContent = totalJetons;
+    }
+
+    function exportData() {
+      const data = {
+        simples,
+        combines,
+        total: totalJetons,
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "mes-chiffres.json";
+      a.click();
+    }
+
+    function resetData() {
+      if (!confirm("Confirmer la réinitialisation ?")) return;
+      totalJetons = 0;
+      simples.length = 0;
+      combines.length = 0;
+      updateList("list-simples", []);
+      updateList("list-combines", []);
+      updateTotal();
+    }
+
+    // Restriction d'accès simple par code (à améliorer en production)
+    const code = sessionStorage.getItem("accessCode");
+    if (!code || code !== "valide") {
+      alert("Accès refusé !");
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
