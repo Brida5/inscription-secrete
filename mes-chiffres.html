@@ -1,77 +1,139 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mes Chiffres Simples</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inscription Secrète</title>
   <style>
-    body { font-family: Arial, sans-serif; background-color: #f8f9fb; padding: 2rem; }
-    h1 { color: #333; }
-    input, button { padding: 0.5rem; margin: 0.5rem 0; font-size: 1rem; }
-    input[type="number"] { width: 60px; }
-    .entry { margin-bottom: 1rem; }
-    .entries { margin-top: 2rem; }
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    .form-container {
+      background: white;
+      padding: 20px;
+      max-width: 400px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+    }
+    #code-section {
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <h1>Mes Chiffres Simples</h1>
-  <div class="entry">
-    <label>Chiffre (00-99): <input type="number" id="chiffre" min="00" max="99"></label>
-    <button onclick="validerChiffre()">Valider</button>
-  </div>
-  <div id="jeton-section" style="display:none;">
-    <label>Jetons (max 40): <input type="number" id="jetons" min="1" max="40"></label>
-    <button onclick="enregistrerChiffre()">Enregistrer</button>
-  </div>
-
-  <div class="entries">
-    <h2>Chiffres Enregistrés</h2>
-    <table id="table">
-      <thead>
-        <tr><th>Chiffre</th><th>Jetons</th><th>Date</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <div class="form-container">
+    <h1>Inscription avec Code</h1>
+    <form id="signup-form">
+      <label>Code d'accès :</label>
+      <input type="text" id="access-code" required />
+      <button type="submit">Valider le code</button>
+    </form>
+    <p id="message"></p>
   </div>
 
   <script>
-    let chiffreTemp = null;
+    const CODE_SECRET = "ABCD1234"; // code d'accès que tu donnes
 
-    function validerChiffre() {
-      const val = document.getElementById('chiffre').value;
-      if (val >= 0 && val <= 99) {
-        chiffreTemp = val.padStart(2, '0');
-        document.getElementById('jeton-section').style.display = 'block';
+    document.getElementById("signup-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const userCode = document.getElementById("access-code").value.trim();
+
+      if (userCode === CODE_SECRET) {
+        window.location.href = "mes-chiffres.html";
       } else {
-        alert("Chiffre invalide (00-99)");
+        document.getElementById("message").textContent = "❌ Code incorrect.";
       }
-    }
-
-    function enregistrerChiffre() {
-      const jetons = parseInt(document.getElementById('jetons').value);
-      if (jetons > 0 && jetons <= 40) {
-        const data = JSON.parse(localStorage.getItem('chiffres') || '[]');
-        data.push({ type: 'simple', chiffre: chiffreTemp, jetons, date: new Date().toISOString() });
-        localStorage.setItem('chiffres', JSON.stringify(data));
-        afficherTable();
-        document.getElementById('jeton-section').style.display = 'none';
-      } else {
-        alert("Maximum 40 jetons");
-      }
-    }
-
-    function afficherTable() {
-      const data = JSON.parse(localStorage.getItem('chiffres') || '[]');
-      const table = document.querySelector('#table tbody');
-      table.innerHTML = '';
-      data.filter(d => d.type === 'simple').forEach(d => {
-        table.innerHTML += `<tr><td>${d.chiffre}</td><td>${d.jetons}</td><td>${new Date(d.date).toLocaleString()}</td></tr>`;
-      });
-    }
-
-    afficherTable();
+    });
   </script>
+</body>
+</html>
+
+<!-- mes-chiffres.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mes Chiffres</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #e8f0fe;
+    }
+    header {
+      background-color: #1e88e5;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    nav {
+      display: flex;
+      justify-content: space-around;
+      background-color: #1565c0;
+      padding: 10px;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    .content {
+      padding: 20px;
+    }
+    button {
+      padding: 10px;
+      margin: 10px;
+      background-color: #42a5f5;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1e88e5;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Mes Chiffres</h1>
+  </header>
+
+  <nav>
+    <a href="mes-chiffres.html">Tableau de bord</a>
+    <a href="mes-chiffres-combines.html">Chiffres combinés</a>
+    <a href="#">Statistiques</a>
+    <a href="#">Historique</a>
+  </nav>
+
+  <div class="content">
+    <h2>Bienvenue dans votre tableau de bord</h2>
+    <p>Choisissez une option dans le menu ci-dessus pour commencer.</p>
+  </div>
 </body>
 </html>
