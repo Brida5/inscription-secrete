@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mes Chiffres Simples</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      color: #333;
+      padding: 20px;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    .form-section {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      max-width: 400px;
+    }
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    input {
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    table {
+      width: 100%;
+      background: white;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+    }
+    .error {
+      color: red;
+      margin-bottom: 10px;
+    }
+    .success {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Mes Chiffres Simples</h1>
+
+  <div class="form-section">
+    <div id="message" class="error"></div>
+    <label>Chiffre entre 00 et 99 :</label>
+    <input type="number" id="chiffre" min="0" max="99" placeholder="ex: 42" />
+
+    <label>Nombre de jetons (max 40) :</label>
+    <input type="number" id="jetons" min="1" max="40" placeholder="ex: 10" />
+
+    <button onclick="ajouterChiffre()">Valider</button>
+    <button onclick="exporter()">Exporter</button>
+  </div>
+
+  <table id="tableau">
+    <thead>
+      <tr>
+        <th>Chiffre</th>
+        <th>Jetons</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const chiffres = [];
+
+    function ajouterChiffre() {
+      const chiffreInput = document.getElementById("chiffre");
+      const jetonsInput = document.getElementById("jetons");
+      const message = document.getElementById("message");
+
+      const chiffre = parseInt(chiffreInput.value, 10);
+      const jetons = parseInt(jetonsInput.value, 10);
+
+      message.textContent = "";
+
+      if (isNaN(chiffre) || chiffre < 0 || chiffre > 99) {
+        message.textContent = "⛔ Le chiffre doit être entre 00 et 99.";
+        return;
+      }
+
+      if (isNaN(jetons) || jetons < 1 || jetons > 40) {
+        message.textContent = "⛔ Le nombre de jetons doit être entre 1 et 40.";
+        return;
+      }
+
+      chiffres.push({ chiffre, jetons });
+      chiffreInput.value = "";
+      jetonsInput.value = "";
+      afficherChiffres();
+    }
+
+    function afficherChiffres() {
+      const tbody = document.querySelector("#tableau tbody");
+      tbody.innerHTML = "";
+
+      chiffres.forEach((item, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${item.chiffre.toString().padStart(2, '0')}</td>
+          <td>${item.jetons}</td>
+          <td>
+            <button onclick="modifier(${index})">Modifier</button>
+            <button onclick="supprimer(${index})">Supprimer</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function modifier(index) {
+      const nouveauChiffre = prompt("Nouveau chiffre (00-99) :", chiffres[index].chiffre);
+      const nouveauxJetons = prompt("Nouveau nombre de jetons (1-40) :", chiffres[index].jetons);
+
+      if (nouveauChiffre === null || nouveauxJetons === null) return;
+
+      const c = parseInt(nouveauChiffre, 10);
+      const j = parseInt(nouveauxJetons, 10);
+
+      if (isNaN(c) || c < 0 || c > 99 || isNaN(j) || j < 1 || j > 40) {
+        alert("Valeurs invalides.");
+        return;
+      }
+
+      chiffres[index] = { chiffre: c, jetons: j };
+      afficherChiffres();
+    }
+
+    function supprimer(index) {
+      chiffres.splice(index, 1);
+      afficherChiffres();
+    }
+
+    function exporter() {
+      if (chiffres.length === 0) {
+        alert("Aucun chiffre à exporter.");
+        return;
+      }
+
+      let texte = "Mes Chiffres Simples :\n";
+      chiffres.forEach(item => {
+        texte += `• ${item.chiffre.toString().padStart(2, '0')} → ${item.jetons} jetons\n`;
+      });
+
+      texte += `\nTotal : ${chiffres.reduce((acc, item) => acc + item.jetons, 0)} jetons`;
+
+      alert(texte);
+    }
+  </script>
+</body>
+</html>
