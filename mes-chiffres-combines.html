@@ -78,5 +78,34 @@
 
     afficherCombines();
   </script>
+<div style="margin-top: 30px;">
+  <a href="mes-chiffres.html">
+    <button style="background-color: #2ecc71; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; margin-right: 10px;">
+      ⬅ Retour au menu
+    </button>
+  </a>
+
+  <button onclick="exportCombines()" style="background-color: #f39c12; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer;">
+    📤 Exporter les chiffres combinés
+  </button>
+</div>
+<script>
+function exportCombines() {
+  let exportData = combines
+    .map(c => `${c.chiffre1} x ${c.chiffre2} - ${c.jetons} jetons${c.complet ? " (Complet)" : ""}`)
+    .join('\n');
+
+  const blob = new Blob([exportData], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "chiffres-combines.txt";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+</script>
+
 </body>
 </html>
