@@ -3,130 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mes Chiffres</title>
+  <title>Mes Chiffres Simples</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background-color: #f4f4f9;
-    }
-    header {
-      background-color: #4A90E2;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-    nav {
-      display: flex;
-      justify-content: center;
-      background-color: #e0e0e0;
-      padding: 0.5rem;
-    }
-    nav button {
-      margin: 0 1rem;
-      padding: 0.5rem 1rem;
-      border: none;
-      background-color: #4A90E2;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .section {
-      display: none;
-      padding: 1rem;
-    }
-    .active {
-      display: block;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-    table, th, td {
-      border: 1px solid #ccc;
-    }
-    th, td {
-      padding: 0.5rem;
-      text-align: center;
-    }
+    body { font-family: Arial, sans-serif; background-color: #f8f9fb; padding: 2rem; }
+    h1 { color: #333; }
+    input, button { padding: 0.5rem; margin: 0.5rem 0; font-size: 1rem; }
+    input[type="number"] { width: 60px; }
+    .entry { margin-bottom: 1rem; }
+    .entries { margin-top: 2rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Mes Chiffres</h1>
-  </header>
+  <h1>Mes Chiffres Simples</h1>
+  <div class="entry">
+    <label>Chiffre (00-99): <input type="number" id="chiffre" min="00" max="99"></label>
+    <button onclick="validerChiffre()">Valider</button>
+  </div>
+  <div id="jeton-section" style="display:none;">
+    <label>Jetons (max 40): <input type="number" id="jetons" min="1" max="40"></label>
+    <button onclick="enregistrerChiffre()">Enregistrer</button>
+  </div>
 
-  <nav>
-    <button onclick="showSection('dashboard')">Tableau de Bord</button>
-    <button onclick="showSection('historique')">Historique</button>
-    <button onclick="showSection('statistiques')">Statistiques</button>
-  </nav>
-
-  <main>
-    <!-- Dashboard Section -->
-    <div id="dashboard" class="section active">
-      <h2>Tableau de Bord</h2>
-      <p><a href="mes-chiffres-simples.html">Mes Chiffres Simples</a></p>
-      <p><a href="mes-chiffres-combines.html">Mes Chiffres Combinés</a></p>
-    </div>
-
-    <!-- Historique Section -->
-    <div id="historique" class="section">
-      <h2>Historique (moins de 24h)</h2>
-      <table id="historique-table">
-        <thead>
-          <tr><th>Type</th><th>Chiffre</th><th>Jetons</th><th>Date</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
-    <!-- Statistiques Section -->
-    <div id="statistiques" class="section">
-      <h2>Statistiques (30 jours)</h2>
-      <table id="stats-table">
-        <thead>
-          <tr><th>Type</th><th>Chiffre</th><th>Jetons</th><th>Date</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </main>
+  <div class="entries">
+    <h2>Chiffres Enregistrés</h2>
+    <table id="table">
+      <thead>
+        <tr><th>Chiffre</th><th>Jetons</th><th>Date</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <script>
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+    let chiffreTemp = null;
+
+    function validerChiffre() {
+      const val = document.getElementById('chiffre').value;
+      if (val >= 0 && val <= 99) {
+        chiffreTemp = val.padStart(2, '0');
+        document.getElementById('jeton-section').style.display = 'block';
+      } else {
+        alert("Chiffre invalide (00-99)");
+      }
     }
 
-    function loadData() {
-      const now = new Date();
-      const historiqueBody = document.querySelector('#historique-table tbody');
-      const statsBody = document.querySelector('#stats-table tbody');
-      historiqueBody.innerHTML = '';
-      statsBody.innerHTML = '';
+    function enregistrerChiffre() {
+      const jetons = parseInt(document.getElementById('jetons').value);
+      if (jetons > 0 && jetons <= 40) {
+        const data = JSON.parse(localStorage.getItem('chiffres') || '[]');
+        data.push({ type: 'simple', chiffre: chiffreTemp, jetons, date: new Date().toISOString() });
+        localStorage.setItem('chiffres', JSON.stringify(data));
+        afficherTable();
+        document.getElementById('jeton-section').style.display = 'none';
+      } else {
+        alert("Maximum 40 jetons");
+      }
+    }
 
+    function afficherTable() {
       const data = JSON.parse(localStorage.getItem('chiffres') || '[]');
-      const newData = data.filter(item => {
-        const age = (now - new Date(item.date)) / (1000 * 60 * 60 * 24);
-        return age <= 30;
+      const table = document.querySelector('#table tbody');
+      table.innerHTML = '';
+      data.filter(d => d.type === 'simple').forEach(d => {
+        table.innerHTML += `<tr><td>${d.chiffre}</td><td>${d.jetons}</td><td>${new Date(d.date).toLocaleString()}</td></tr>`;
       });
-
-      newData.forEach(item => {
-        const tr = `<tr><td>${item.type}</td><td>${item.chiffre}</td><td>${item.jetons}</td><td>${new Date(item.date).toLocaleString()}</td></tr>`;
-        const age = (now - new Date(item.date)) / (1000 * 60 * 60);
-        if (age < 24) {
-          historiqueBody.innerHTML += tr;
-        } else {
-          statsBody.innerHTML += tr;
-        }
-      });
-
-      localStorage.setItem('chiffres', JSON.stringify(newData)); // nettoyage des vieux
     }
 
-    window.onload = loadData;
+    afficherTable();
   </script>
 </body>
 </html>
