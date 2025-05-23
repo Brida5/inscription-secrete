@@ -8,7 +8,6 @@
     body {
       font-family: Arial, sans-serif;
       background-color: #f1f3f6;
-      margin: 0;
       padding: 20px;
       text-align: center;
     }
@@ -23,7 +22,7 @@
     table {
       margin: 20px auto;
       border-collapse: collapse;
-      width: 80%;
+      width: 90%;
       background-color: white;
     }
     th, td {
@@ -65,6 +64,7 @@
   <div style="margin-top:10px;">
     <input type="number" id="jetons-combine" placeholder="Jetons (max 6)" min="1" max="6" />
     <button class="btn" onclick="ajouterJetons()">Ajouter Jetons</button>
+    <button class="btn" onclick="toggleComplet()">✔️ C (Complet)</button>
   </div>
 
   <table id="tableau">
@@ -72,14 +72,15 @@
       <tr>
         <th>Chiffres Combinés</th>
         <th>Jetons</th>
+        <th>Complet</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
   <div>
-    <button class="btn btn-export" onclick="exporterCSV()">📤 Exporter en CSV</button>
-    <button class="btn btn-export" onclick="exporterPDF()">📄 Exporter en PDF</button>
+    <button class="btn btn-export" onclick="exporterCSV()">📤 Exporter CSV</button>
+    <button class="btn btn-export" onclick="exporterPDF()">📄 Exporter PDF</button>
     <br /><br />
     <button class="btn btn-return" onclick="window.location.href='mes-chiffres.html'">⬅ Retour au menu</button>
   </div>
@@ -87,6 +88,7 @@
   <script>
     const tableau = document.querySelector("#tableau tbody");
     let chiffresTemp = "";
+    let completTemp = false;
     const data = [];
 
     function ajouterCombine() {
@@ -100,6 +102,11 @@
       alert("Chiffre combiné enregistré. Entrez maintenant le nombre de jetons.");
     }
 
+    function toggleComplet() {
+      completTemp = !completTemp;
+      alert(completTemp ? "Mode Complet activé" : "Mode Complet désactivé");
+    }
+
     function ajouterJetons() {
       const jetons = parseInt(document.getElementById("jetons-combine").value, 10);
       if (!chiffresTemp) {
@@ -110,11 +117,19 @@
         alert("Entrez un nombre de jetons entre 1 et 6.");
         return;
       }
-      data.push({ combine: chiffresTemp, jetons });
+      const item = { combine: chiffresTemp, jetons, complet: completTemp };
+      data.push(item);
+
       const row = document.createElement("tr");
-      row.innerHTML = `<td>${chiffresTemp}</td><td>${jetons}</td>`;
+      row.innerHTML = `
+        <td>${item.combine}</td>
+        <td>${item.jetons}</td>
+        <td>${item.complet ? "✔️" : "❌"}</td>
+      `;
       tableau.appendChild(row);
+
       chiffresTemp = "";
+      completTemp = false;
       document.getElementById("chiffre1").value = "";
       document.getElementById("chiffre2").value = "";
       document.getElementById("jetons-combine").value = "";
@@ -122,9 +137,9 @@
 
     function exporterCSV() {
       const date = new Date().toLocaleString();
-      let csv = `Export CSV - ${date}\nChiffres Combinés,Jetons\n`;
+      let csv = `Export CSV - ${date}\nChiffres Combinés,Jetons,Complet\n`;
       data.forEach(item => {
-        csv += `${item.combine},${item.jetons}\n`;
+        csv += `${item.combine},${item.jetons},${item.complet ? "✔️" : "❌"}\n`;
       });
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
@@ -141,7 +156,7 @@
       doc.text("Export Chiffres Combinés - " + date, 10, 10);
       let y = 20;
       data.forEach(item => {
-        doc.text(`${item.combine} - ${item.jetons} jetons`, 10, y);
+        doc.text(`${item.combine} - ${item.jetons} jetons - ${item.complet ? "✔️ Complet" : "❌"}`, 10, y);
         y += 10;
       });
       doc.save(`export-combines-${Date.now()}.pdf`);
