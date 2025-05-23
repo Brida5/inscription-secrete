@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mes Chiffres Simples et Combinés</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f0f4f8;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #34495e;
+      margin-bottom: 25px;
+    }
+    .container {
+      background: white;
+      max-width: 700px;
+      margin: 0 auto;
+      border-radius: 10px;
+      padding: 20px 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    h2 {
+      color: #2980b9;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 12px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    .list-section {
+      margin-top: 25px;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+      max-height: 180px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      background: #f9f9f9;
+    }
+    li {
+      padding: 6px 8px;
+      border-bottom: 1px solid #ddd;
+      font-size: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    li:last-child {
+      border-bottom: none;
+    }
+    .error {
+      color: #e74c3c;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+    .export-buttons {
+      margin-top: 30px;
+      text-align: center;
+    }
+    .export-buttons button {
+      width: 48%;
+      margin: 5px 1%;
+      background: #2ecc71;
+    }
+    .export-buttons button:hover {
+      background: #27ae60;
+    }
+    .back-button {
+      margin-top: 35px;
+      background: #e74c3c;
+      width: 100%;
+    }
+    .back-button:hover {
+      background: #c0392b;
+    }
+    .timestamp {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Mes Chiffres Simples et Combinés</h1>
+
+  <div class="container">
+
+    <!-- Section Chiffres Simples -->
+    <section>
+      <h2>Chiffres Simples (limite 40 jetons par chiffre)</h2>
+      <label for="simple-number">Entrez un chiffre (00 à 99) :</label>
+      <input type="number" id="simple-number" min="0" max="99" placeholder="Ex: 12" />
+      <label for="simple-jetons">Nombre de jetons (max 40) :</label>
+      <input type="number" id="simple-jetons" min="1" max="40" placeholder="Ex: 15" />
+      <button onclick="addSimple()">Ajouter chiffre simple</button>
+      <p id="error-simple" class="error"></p>
+
+      <div class="list-section">
+        <h3>Liste des chiffres simples :</h3>
+        <ul id="list-simples"></ul>
+      </div>
+    </section>
+
+    <!-- Section Chiffres Combinés -->
+    <section>
+      <h2>Chiffres Combinés (limite 6 jetons par combinaison)</h2>
+      <label for="combined-number">Entrez la combinaison (exemple: 12x34) :</label>
+      <input type="text" id="combined-number" placeholder="Ex: 12x34" />
+      <label for="combined-jetons">Nombre de jetons (max 6) :</label>
+      <input type="number" id="combined-jetons" min="1" max="6" placeholder="Ex: 4" />
+      <button onclick="addCombined()">Ajouter chiffre combiné</button>
+      <p id="error-combined" class="error"></p>
+
+      <div class="list-section">
+        <h3>Liste des chiffres combinés :</h3>
+        <ul id="list-combined"></ul>
+      </div>
+    </section>
+
+    <div class="export-buttons">
+      <button onclick="exportPDF()">📄 Export PDF</button>
+      <button onclick="exportCSV()">📤 Export CSV</button>
+    </div>
+
+    <p class="timestamp" id="export-time"></p>
+
+    <button class="back-button" onclick="location.href='index.html'">⬅ Retour à l’accueil</button>
+
+  </div>
+
+  <script>
+    let simples = [];
+    let combines = [];
+
+    // Ajout chiffre simple
+    function addSimple() {
+      const numInput = document.getElementById("simple-number");
+      const jetonsInput = document.getElementById("simple-jetons");
+      const errorSimple = document.getElementById("error-simple");
+
+      let num = numInput.value.trim();
+      let jetons = jetonsInput.value.trim();
+
+      errorSimple.textContent = "";
+
+      if (num === "" || jetons === "") {
+        errorSimple.textContent = "Veuillez remplir tous les champs.";
+        return;
+      }
+
+      num = Number(num);
+      jetons = Number(jetons);
+
+      if (isNaN(num) || num < 0 || num > 99) {
+        errorSimple.textContent = "Le chiffre doit être entre 00 et 99.";
+        return;
+      }
+      if (isNaN(jetons) || jetons < 1 || jetons > 40) {
+        errorSimple.textContent = "Les jetons doivent être entre 1 et 40.";
+        return;
+      }
+
+      simples.push({ chiffre: num.toString().padStart(2, '0'), jetons });
+      updateSimpleList();
+
+      numInput.value = "";
+      jetonsInput.value = "";
+    }
+
+    // Ajout chiffre combiné
+    function addCombined() {
+      const comboInput = document.getElementById("combined-number");
+      const jetonsInput = document.getElementById("combined-jetons");
+      const errorCombined = document.getElementById("error-combined");
+
+      let combo = comboInput.value.trim();
+      let jetons = jetonsInput.value.trim();
+
+      errorCombined.textContent = "";
+
+      if (combo === "" || jetons === "") {
+        errorCombined.textContent = "Veuillez remplir tous les champs.";
+        return;
+      }
+
+      const comboPattern = /^\d{2}x\d{2}$/;
+      if (!comboPattern.test(combo)) {
+        errorCombined.textContent = "Format incorrect. Exemple valide : 12x34";
+        return;
+      }
+
+      jetons = Number(jetons);
+      if (isNaN(jetons) || jetons < 1 || jetons > 6) {
+        errorCombined.textContent = "Les jetons doivent être entre 1 et 6.";
+        return;
+      }
+
+      combines.push({ combinaison: combo, jetons });
+      updateCombinedList();
+
+      comboInput.value = "";
+      jetonsInput.value = "";
+    }
+
+    // Met à jour la liste simple affichée
+    function updateSimpleList() {
+      const list = document.getElementById("list-simples");
+      list.innerHTML = "";
+      simples.forEach((item, idx) => {
+        const li = document.createElement("li");
+        li.textContent = `Chiffre: ${item.chiffre} — Jetons: ${item.jetons}`;
+        list.appendChild(li);
+      });
+    }
+
+    // Met à jour la liste combinée affichée
+    function updateCombinedList() {
+      const list = document.getElementById("list-combined");
+      list.innerHTML = "";
+      combines.forEach((item, idx) => {
+        const li = document.createElement("li");
+        li.textContent = `Combinaison: ${item.combinaison} — Jetons: ${item.jetons}`;
+        list.appendChild(li);
+      });
+    }
+
+    // Export PDF
+    function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const now = new Date();
+      const timestamp = now.toLocaleString();
+
+      doc.setFontSize(16);
+      doc.text("Export Mes Chiffres Simples et Combinés", 15, 20);
+      doc.setFontSize(12);
+      doc.text("Exporté le : " + timestamp, 15, 30);
+
+      doc.setFontSize(14);
+      let y = 45;
+      doc.text("Chiffres Simples :", 15, y);
+      y += 8;
+      if (simples.length === 0) {
+        doc.text("Aucun chiffre simple ajouté.", 15, y);
+        y += 8;
+      } else {
+        simples.forEach(item => {
+          doc.text(`Chiffre: ${item.chiffre} — Jetons: ${item.jetons}`, 15, y);
+          y += 8;
+        });
+      }
+
+      y += 10;
+      doc.text("Chiffres Combinés :", 15, y);
+      y += 8;
+      if (combines.length === 0) {
+        doc.text("Aucune combinaison ajoutée.", 15, y);
+        y += 8;
+      } else {
+        combines.forEach(item => {
+          doc.text(`Combinaison: ${item.combinaison} — Jetons: ${item.jetons}`, 15, y);
+          y += 8;
+        });
+      }
+
+      doc.save("mes_chiffres_simples_combinees.pdf");
+      document.getElementById("export-time").textContent = `Dernier export : ${timestamp}`;
+    }
+
+    // Export CSV
+    function exportCSV() {
+      const now = new Date();
+      const timestamp = now.toLocaleString();
+      let csvContent = "Type,Chiffre/Combinaison,Jetons,Date\n";
+
+      simples.forEach(item => {
+        csvContent += `Simple,${item.chiffre},${item.jetons},${timestamp}\n`;
+      });
+      combines.forEach(item => {
+        csvContent += `Combiné,${item.combinaison},${item.jetons},${timestamp}\n`;
+      });
+
+      if (simples.length === 0 && combines.length === 0) {
+        alert("Aucun chiffre à exporter !");
+        return;
+      }
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "mes_chiffres_simples_combinees.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+
+      document.getElementById("export-time").textContent = `Dernier export : ${timestamp}`;
+    }
+  </script>
+</body>
+</html>
