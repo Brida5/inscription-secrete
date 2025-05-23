@@ -2,191 +2,172 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mes Chiffres Simples</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f0f4f8;
-      color: #333;
+      font-family: 'Roboto', sans-serif;
+      background: #f7f9fc;
+      margin: 0;
       padding: 20px;
+      text-align: center;
     }
     h1 {
       color: #2c3e50;
-    }
-    .form-section {
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       margin-bottom: 20px;
-      max-width: 400px;
     }
-    label {
-      display: block;
-      margin-bottom: 10px;
+    .container {
+      background: white;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    input {
+    input, button {
       padding: 10px;
-      width: 100%;
-      margin-bottom: 15px;
-      border-radius: 6px;
+      margin: 8px 0;
+      width: 90%;
+      border-radius: 8px;
       border: 1px solid #ccc;
     }
     button {
-      padding: 10px 16px;
-      background-color: #3498db;
+      background: #3498db;
       color: white;
-      border: none;
-      border-radius: 6px;
       cursor: pointer;
-      margin-right: 10px;
+      font-weight: bold;
     }
     button:hover {
-      background-color: #2980b9;
+      background: #2980b9;
     }
-    table {
-      width: 100%;
-      background: white;
-      border-collapse: collapse;
+    .list {
+      text-align: left;
       margin-top: 20px;
     }
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-      text-align: center;
+    .export-buttons {
+      margin-top: 20px;
     }
-    .error {
-      color: red;
-      margin-bottom: 10px;
+    .export-buttons button {
+      width: 45%;
+      margin: 5px;
+      background: #2ecc71;
     }
-    .success {
-      color: green;
+    .export-buttons button:hover {
+      background: #27ae60;
+    }
+    .back-button {
+      background: #e74c3c;
+      margin-top: 20px;
+    }
+    .back-button:hover {
+      background: #c0392b;
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h1>📊 Mes Chiffres Simples</h1>
 
-  <h1>Mes Chiffres Simples</h1>
+    <input type="number" id="chiffre" placeholder="Entrez un chiffre entre 00 et 99" min="0" max="99">
+    <button onclick="ajouterChiffre()">Ajouter</button>
 
-  <div class="form-section">
-    <div id="message" class="error"></div>
-    <label>Chiffre entre 00 et 99 :</label>
-    <input type="number" id="chiffre" min="0" max="99" placeholder="ex: 42" />
+    <div id="jeton-section" style="display:none;">
+      <input type="number" id="jetons" placeholder="Nombre de jetons (max 40)" min="1" max="40">
+      <button onclick="validerJetons()">Valider Jetons</button>
+    </div>
 
-    <label>Nombre de jetons (max 40) :</label>
-    <input type="number" id="jetons" min="1" max="40" placeholder="ex: 10" />
+    <div class="list" id="liste-chiffres"></div>
 
-    <button onclick="ajouterChiffre()">Valider</button>
-    <button onclick="exporter()">Exporter</button>
+    <div class="export-buttons">
+      <button onclick="exporterPDF()">📄 Exporter PDF</button>
+      <button onclick="exporterCSV()">📤 Exporter CSV</button>
+    </div>
+
+    <button class="back-button" onclick="window.location.href='mes-chiffres.html'">⬅ Retour au menu</button>
   </div>
 
-  <table id="tableau">
-    <thead>
-      <tr>
-        <th>Chiffre</th>
-        <th>Jetons</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
   <script>
-    const chiffres = [];
+    let simples = [];
+    let chiffreTemp = null;
 
     function ajouterChiffre() {
-      const chiffreInput = document.getElementById("chiffre");
-      const jetonsInput = document.getElementById("jetons");
-      const message = document.getElementById("message");
-
-      const chiffre = parseInt(chiffreInput.value, 10);
-      const jetons = parseInt(jetonsInput.value, 10);
-
-      message.textContent = "";
-
-      if (isNaN(chiffre) || chiffre < 0 || chiffre > 99) {
-        message.textContent = "⛔ Le chiffre doit être entre 00 et 99.";
+      const val = document.getElementById("chiffre").value;
+      if (val === "" || isNaN(val) || val < 0 || val > 99) {
+        alert("Veuillez entrer un chiffre valide entre 00 et 99.");
         return;
       }
+      chiffreTemp = val.padStart(2, '0');
+      document.getElementById("jeton-section").style.display = "block";
+    }
 
+    function validerJetons() {
+      const jetons = parseInt(document.getElementById("jetons").value);
       if (isNaN(jetons) || jetons < 1 || jetons > 40) {
-        message.textContent = "⛔ Le nombre de jetons doit être entre 1 et 40.";
+        alert("Le nombre de jetons doit être entre 1 et 40.");
         return;
       }
 
-      chiffres.push({ chiffre, jetons });
-      chiffreInput.value = "";
-      jetonsInput.value = "";
-      afficherChiffres();
+      simples.push({
+        chiffre: chiffreTemp,
+        jetons: jetons,
+        timestamp: Date.now()
+      });
+
+      document.getElementById("jeton-section").style.display = "none";
+      document.getElementById("jetons").value = "";
+      document.getElementById("chiffre").value = "";
+
+      afficherListe();
     }
 
-    function afficherChiffres() {
-      const tbody = document.querySelector("#tableau tbody");
-      tbody.innerHTML = "";
-
-      chiffres.forEach((item, index) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${item.chiffre.toString().padStart(2, '0')}</td>
-          <td>${item.jetons}</td>
-          <td>
-            <button onclick="modifier(${index})">Modifier</button>
-            <button onclick="supprimer(${index})">Supprimer</button>
-          </td>
-        `;
-        tbody.appendChild(row);
+    function afficherListe() {
+      const div = document.getElementById("liste-chiffres");
+      div.innerHTML = "<h3>✅ Chiffres enregistrés :</h3>";
+      simples.forEach(item => {
+        div.innerHTML += `<p>🔢 ${item.chiffre} — 💰 ${item.jetons} jetons</p>`;
       });
     }
 
-    function modifier(index) {
-      const nouveauChiffre = prompt("Nouveau chiffre (00-99) :", chiffres[index].chiffre);
-      const nouveauxJetons = prompt("Nouveau nombre de jetons (1-40) :", chiffres[index].jetons);
-
-      if (nouveauChiffre === null || nouveauxJetons === null) return;
-
-      const c = parseInt(nouveauChiffre, 10);
-      const j = parseInt(nouveauxJetons, 10);
-
-      if (isNaN(c) || c < 0 || c > 99 || isNaN(j) || j < 1 || j > 40) {
-        alert("Valeurs invalides.");
-        return;
-      }
-
-      chiffres[index] = { chiffre: c, jetons: j };
-      afficherChiffres();
-    }
-
-    function supprimer(index) {
-      chiffres.splice(index, 1);
-      afficherChiffres();
-    }
-
-    function exporter() {
-      if (chiffres.length === 0) {
-        alert("Aucun chiffre à exporter.");
-        return;
-      }
-
-      let texte = "Mes Chiffres Simples :\n";
-      chiffres.forEach(item => {
-        texte += `• ${item.chiffre.toString().padStart(2, '0')} → ${item.jetons} jetons\n`;
+    function exporterCSV() {
+      if (simples.length === 0) return alert("Aucun chiffre à exporter.");
+      let csv = "Chiffre,Jetons,Date\n";
+      simples.forEach(item => {
+        const date = new Date(item.timestamp).toLocaleString();
+        csv += `${item.chiffre},${item.jetons},${date}\n`;
       });
 
-      texte += `\nTotal : ${chiffres.reduce((acc, item) => acc + item.jetons, 0)} jetons`;
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "chiffres_simples.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
 
-      alert(texte);
+    async function exporterPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 10;
+      doc.setFontSize(16);
+      doc.text("Chiffres Simples - PDF Export", 60, y);
+      y += 10;
+
+      if (simples.length === 0) return alert("Aucun chiffre à exporter.");
+
+      doc.setFontSize(12);
+      simples.forEach(item => {
+        const date = new Date(item.timestamp).toLocaleString();
+        const line = `Chiffre : ${item.chiffre} — Jetons : ${item.jetons} — ${date}`;
+        if (y > 280) { doc.addPage(); y = 10; }
+        doc.text(line, 10, y);
+        y += 8;
+      });
+
+      doc.save("chiffres_simples.pdf");
     }
   </script>
-<div style="margin-top: 30px;">
-  <a href="mes-chiffres.html">
-    <button style="background-color: #2ecc71; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; margin-right: 10px;">
-      ⬅ Retour au menu
-    </button>
-  </a>
-
-  <button onclick="exportsimples()" style="background-color: #f39c12; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer;">
-    📤 Exporter les chiffres simples
-  </button>
-</div>
 </body>
 </html>
