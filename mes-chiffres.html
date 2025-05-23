@@ -94,7 +94,7 @@
   <!-- Chiffres Simples -->
   <div id="simples" class="section hidden">
     <h2>🔹 Ajouter des chiffres simples</h2>
-    <input type="number" id="simple-chiffre" placeholder="Chiffre (0-99)" min="0" max="99">
+    <input type="number" id="simple-chiffre" placeholder="Chiffre (00-99)" min="00" max="99">
     <input type="number" id="jetons-simple" placeholder="Jetons (max 40)" min="1" max="40">
     <button onclick="ajouterChiffreSimple()">Ajouter</button>
     <div id="liste-simples"></div>
@@ -103,8 +103,8 @@
   <!-- Chiffres Combinés -->
   <div id="combines" class="section hidden">
     <h2>🔸 Ajouter des chiffres combinés</h2>
-    <input type="number" id="chiffre1" placeholder="Chiffre 1 (0-99)" min="0" max="99">
-    <input type="number" id="chiffre2" placeholder="Chiffre 2 (0-99)" min="0" max="99">
+    <input type="number" id="chiffre1" placeholder="Chiffre 1 (00-99)" min="00" max="99">
+    <input type="number" id="chiffre2" placeholder="Chiffre 2 (00-99)" min="0" max="99">
     <input type="number" id="jetons-combine" placeholder="Jetons (max 6)" min="1" max="6">
     <button onclick="ajouterCombine()">Ajouter</button>
     <div id="liste-combines"></div>
@@ -115,13 +115,13 @@
     <h2>🟣 Ajouter chiffres simples et combinés</h2>
 
     <h4>Chiffre simple :</h4>
-    <input type="number" id="mix-simple" placeholder="Chiffre (0-99)" min="0" max="99">
+    <input type="number" id="mix-simple" placeholder="Chiffre (00-99)" min="00" max="99">
     <input type="number" id="mix-jetons-simple" placeholder="Jetons (max 40)" min="1" max="40">
     <button onclick="ajouterMixteSimple()">Ajouter</button>
 
     <h4>Chiffre combiné :</h4>
-    <input type="number" id="mix-c1" placeholder="Chiffre 1" min="0" max="99">
-    <input type="number" id="mix-c2" placeholder="Chiffre 2" min="0" max="99">
+    <input type="number" id="mix-c1" placeholder="Chiffre 1" min="00" max="99">
+    <input type="number" id="mix-c2" placeholder="Chiffre 2" min="00" max="99">
     <input type="number" id="mix-jetons-combine" placeholder="Jetons (max 6)" min="1" max="6">
     <button onclick="ajouterMixteCombine()">Ajouter</button>
 
