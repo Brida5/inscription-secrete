@@ -2,37 +2,81 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inscription par Code d'Accès</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inscription – Mes Chiffres</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #2c3e50, #3498db);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1em;
+      margin-top: 10px;
+    }
+
+    input {
+      width: 250px;
+      text-align: center;
+    }
+
+    button {
+      background-color: #27ae60;
+      color: white;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background-color: #2ecc71;
+    }
+
+    #error {
+      color: #ff7675;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Inscription avec Code d’Accès</h1>
+  <h1>Bienvenue sur Mes Chiffres</h1>
 
-  <form id="access-form">
-    <label>
-      Entrez votre code d’accès :
-      <input type="text" id="access-code" required />
-    </label>
-    <button type="submit">Valider</button>
-  </form>
-
-  <p id="message"></p>
+  <div id="access-form">
+    <p>Veuillez entrer votre code d'accès :</p>
+    <input type="text" id="access-code" placeholder="Code secret" />
+    <br>
+    <button onclick="checkCode()">Entrer</button>
+    <p id="error"></p>
+  </div>
 
   <script>
-    // Liste des codes d'accès valides (à modifier pour ajouter/supprimer)
-    const validCodes = ["ABC123", "XYZ789", "SECRET2025"];
+    const validCodes = ["123456", "ABCDEF", "MONCODE42"]; // Tu peux en ajouter ici
 
-    document.getElementById("access-form").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const enteredCode = document.getElementById("access-code").value.trim();
-
-      if (validCodes.includes(enteredCode)) {
-        sessionStorage.setItem("accessCode", "valide");
+    function checkCode() {
+      const userCode = document.getElementById("access-code").value.trim();
+      if (validCodes.includes(userCode)) {
+        // Code valide → redirection
         window.location.href = "mes-chiffres.html";
       } else {
-        document.getElementById("message").textContent = "❌ Code d’accès incorrect.";
+        // Mauvais code
+        document.getElementById("error").textContent = "❌ Code incorrect.";
       }
-    });
+    }
   </script>
 </body>
 </html>
