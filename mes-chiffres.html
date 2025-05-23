@@ -2,190 +2,118 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mes Chiffres</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      font-family: 'Roboto', sans-serif;
+      background: #eaf1f8;
       text-align: center;
-      padding: 40px;
+      padding: 40px 20px;
+    }
+    h1 {
       color: #2c3e50;
     }
-
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
+    .menu {
+      background: white;
+      padding: 20px;
+      margin: auto;
+      max-width: 500px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin: 8px;
-      background-color: #2980b9;
+    .menu button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 15px;
+      background: #3498db;
       color: white;
+      font-size: 16px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: 0.3s ease;
+      transition: background 0.3s;
     }
-
-    button:hover {
-      background-color: #1f5f8b;
+    .menu button:hover {
+      background: #2980b9;
     }
-
-    .section {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
+    .export-buttons {
       margin-top: 30px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
     }
-
-    input {
-      padding: 10px;
-      margin: 8px;
-      width: 180px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+    .export-buttons button {
+      width: 45%;
+      margin: 10px;
+      background: #2ecc71;
     }
-
-    .chiffre-item {
-      margin: 6px 0;
-      text-align: left;
+    .export-buttons button:hover {
+      background: #27ae60;
     }
-
-    .total {
-      font-weight: bold;
-      margin-top: 20px;
-      color: #e67e22;
+    .back-button {
+      margin-top: 30px;
+      background: #e74c3c;
     }
-
-    .menu-buttons {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 30px;
+    .back-button:hover {
+      background: #c0392b;
     }
-
-    .hidden {
-      display: none;
-    }
-
-    .active {
-      background-color: #16a085 !important;
+    .timestamp {
+      margin-top: 15px;
+      color: #555;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
   <h1>📊 Mes Chiffres</h1>
+  <div class="menu">
+    <button onclick="location.href='mes-chiffres-simples.html'">🔢 Mes chiffres simples</button>
+    <button onclick="location.href='mes-chiffres-combines.html'">🔗 Mes chiffres combinés</button>
+    <button onclick="location.href='mes-chiffres-simples-et-combines.html'">🧮 Simples et combinés</button>
 
-  <div class="menu-buttons">
-    <button onclick="showSection('simples')">🔹 Simples</button>
-    <button onclick="showSection('combines')">🔸 Combinés</button>
-    <button onclick="showSection('mixte')">🟣 Simples + Combinés</button>
-    <button onclick="location.href='index.html'">🔙 Accueil</button>
+    <div class="export-buttons">
+      <button onclick="exportPDF()">📄 Export PDF</button>
+      <button onclick="exportCSV()">📤 Export CSV</button>
+    </div>
+
+    <p class="timestamp" id="export-time"></p>
+
+    <button class="back-button" onclick="location.href='index.html'">⬅ Retour à l’accueil</button>
   </div>
-
-  <!-- Chiffres Simples -->
-  <div id="simples" class="section hidden">
-    <h2>🔹 Ajouter des chiffres simples</h2>
-    <input type="number" id="simple-chiffre" placeholder="Chiffre (00-99)" min="00" max="99">
-    <input type="number" id="jetons-simple" placeholder="Jetons (max 40)" min="1" max="40">
-    <button onclick="ajouterChiffreSimple()">Ajouter</button>
-    <div id="liste-simples"></div>
-  </div>
-
-  <!-- Chiffres Combinés -->
-  <div id="combines" class="section hidden">
-    <h2>🔸 Ajouter des chiffres combinés</h2>
-    <input type="number" id="chiffre1" placeholder="Chiffre 1 (00-99)" min="00" max="99">
-    <input type="number" id="chiffre2" placeholder="Chiffre 2 (00-99)" min="0" max="99">
-    <input type="number" id="jetons-combine" placeholder="Jetons (max 6)" min="1" max="6">
-    <button onclick="ajouterCombine()">Ajouter</button>
-    <div id="liste-combines"></div>
-  </div>
-
-  <!-- Formulaire mixte -->
-  <div id="mixte" class="section hidden">
-    <h2>🟣 Ajouter chiffres simples et combinés</h2>
-
-    <h4>Chiffre simple :</h4>
-    <input type="number" id="mix-simple" placeholder="Chiffre (00-99)" min="00" max="99">
-    <input type="number" id="mix-jetons-simple" placeholder="Jetons (max 40)" min="1" max="40">
-    <button onclick="ajouterMixteSimple()">Ajouter</button>
-
-    <h4>Chiffre combiné :</h4>
-    <input type="number" id="mix-c1" placeholder="Chiffre 1" min="00" max="99">
-    <input type="number" id="mix-c2" placeholder="Chiffre 2" min="00" max="99">
-    <input type="number" id="mix-jetons-combine" placeholder="Jetons (max 6)" min="1" max="6">
-    <button onclick="ajouterMixteCombine()">Ajouter</button>
-
-    <div id="liste-mixte"></div>
-  </div>
-
-  <div class="total" id="total-jetons">Total : 0 jetons</div>
 
   <script>
-    let totalJetons = 0;
+    function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const now = new Date();
+      const timestamp = now.toLocaleString();
 
-    const simples = [];
-    const combines = [];
-    const mixtes = [];
+      doc.setFontSize(16);
+      doc.text("Export Mes Chiffres", 70, 20);
+      doc.setFontSize(12);
+      doc.text("Exporté le : " + timestamp, 10, 30);
 
-    function showSection(sectionId) {
-      document.querySelectorAll('.section').forEach(sec => sec.classList.add('hidden'));
-      document.getElementById(sectionId).classList.remove('hidden');
+      doc.text("Détail de vos chiffres exportés ici...", 10, 50); // À remplacer si on ajoute les données
+
+      doc.save("mes_chiffres_export.pdf");
+      document.getElementById("export-time").textContent = `Dernier export : ${timestamp}`;
     }
 
-    function ajouterChiffreSimple() {
-      const chiffre = parseInt(document.getElementById("simple-chiffre").value);
-      const jetons = parseInt(document.getElementById("jetons-simple").value);
-      if (isNaN(chiffre) || isNaN(jetons) || jetons > 40) return alert("Erreur de saisie.");
-      simples.push({ chiffre, jetons });
-      totalJetons += jetons;
-      document.getElementById("liste-simples").innerHTML += `<div class="chiffre-item">${chiffre} — ${jetons} jetons</div>`;
-      updateTotal();
-    }
+    function exportCSV() {
+      const now = new Date();
+      const timestamp = now.toLocaleString();
+      const contenu = "Chiffres,Jetons,Complet,Date\nExemple,20,Non," + timestamp;
 
-    function ajouterCombine() {
-      const c1 = parseInt(document.getElementById("chiffre1").value);
-      const c2 = parseInt(document.getElementById("chiffre2").value);
-      const jetons = parseInt(document.getElementById("jetons-combine").value);
-      if (isNaN(c1) || isNaN(c2) || isNaN(jetons) || jetons > 6) return alert("Erreur de saisie.");
-      combines.push({ c1, c2, jetons });
-      totalJetons += jetons;
-      document.getElementById("liste-combines").innerHTML += `<div class="chiffre-item">${c1}x${c2} — ${jetons} jetons</div>`;
-      updateTotal();
-    }
+      const blob = new Blob([contenu], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "mes_chiffres_export.csv";
+      a.click();
+      URL.revokeObjectURL(url);
 
-    function ajouterMixteSimple() {
-      const chiffre = parseInt(document.getElementById("mix-simple").value);
-      const jetons = parseInt(document.getElementById("mix-jetons-simple").value);
-      if (isNaN(chiffre) || isNaN(jetons) || jetons > 40) return alert("Erreur de saisie.");
-      mixtes.push({ type: "simple", chiffre, jetons });
-      totalJetons += jetons;
-      document.getElementById("liste-mixte").innerHTML += `<div class="chiffre-item">Simple : ${chiffre} — ${jetons} jetons</div>`;
-      updateTotal();
-    }
-
-    function ajouterMixteCombine() {
-      const c1 = parseInt(document.getElementById("mix-c1").value);
-      const c2 = parseInt(document.getElementById("mix-c2").value);
-      const jetons = parseInt(document.getElementById("mix-jetons-combine").value);
-      if (isNaN(c1) || isNaN(c2) || isNaN(jetons) || jetons > 6) return alert("Erreur de saisie.");
-      mixtes.push({ type: "combine", combine: `${c1}x${c2}`, jetons });
-      totalJetons += jetons;
-      document.getElementById("liste-mixte").innerHTML += `<div class="chiffre-item">Combiné : ${c1}x${c2} — ${jetons} jetons</div>`;
-      updateTotal();
-    }
-
-    function updateTotal() {
-      document.getElementById("total-jetons").innerText = `Total : ${totalJetons} jetons`;
+      document.getElementById("export-time").textContent = `Dernier export : ${timestamp}`;
     }
   </script>
 </body>
