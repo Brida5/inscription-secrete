@@ -90,21 +90,78 @@
   </button>
 </div>
 <script>
-function exportCombines() {
-  let exportData = combines
-    .map(c => `${c.chiffre1} x ${c.chiffre2} - ${c.jetons} jetons${c.complet ? " (Complet)" : ""}`)
-    .join('\n');
+   // Export PDF
+    function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const now = new Date();
+      const timestamp = now.toLocaleString();
 
-  const blob = new Blob([exportData], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
+      doc.setFontSize(16);
+      doc.text("Export Mes Chiffres Simples et Combinés", 15, 20);
+      doc.setFontSize(12);
+      doc.text("Exporté le : " + timestamp, 15, 30);
 
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "chiffres-combines.txt";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
+      doc.setFontSize(14);
+      let y = 45;
+      doc.text("Chiffres Simples :", 15, y);
+      y += 8;
+      if (simples.length === 0) {
+        doc.text("Aucun chiffre simple ajouté.", 15, y);
+        y += 8;
+      } else {
+        simples.forEach(item => {
+          doc.text(`Chiffre: ${item.chiffre} — Jetons: ${item.jetons}`, 15, y);
+          y += 8;
+        });
+      }
+
+      y += 10;
+      doc.text("Chiffres Combinés :", 15, y);
+      y += 8;
+      if (combines.length === 0) {
+        doc.text("Aucune combinaison ajoutée.", 15, y);
+        y += 8;
+      } else {
+        combines.forEach(item => {
+          doc.text(`Combinaison: ${item.combinaison} — Jetons: ${item.jetons}`, 15, y);
+          y += 8;
+        });
+      }
+
+      doc.save("mes_chiffres_simples_combinees.pdf");
+      document.getElementById("export-time").textContent = `Dernier export : ${timestamp}`;
+    }
+
+    // Export CSV
+    function exportCSV() {
+      const now = new Date();
+      const timestamp = now.toLocaleString();
+      let csvContent = "Type,Chiffre/Combinaison,Jetons,Date\n";
+
+      simples.forEach(item => {
+        csvContent += `Simple,${item.chiffre},${item.jetons},${timestamp}\n`;
+      });
+      combines.forEach(item => {
+        csvContent += `Combiné,${item.combinaison},${item.jetons},${timestamp}\n`;
+      });
+
+      if (simples.length === 0 && combines.length === 0) {
+        alert("Aucun chiffre à exporter !");
+        return;
+      }
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "mes_chiffres_simples_combinees.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+
+      document.getElementById("export-time").textContent = `Dernier export : ${timestamp}`;
+    }
+
 </script>
 
 </body>
